@@ -31,7 +31,8 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'FuelRewards API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -49,7 +50,8 @@ app.get('/', (req, res) => {
       customers: '/api/customers',
       admin: '/api/admin',
       products: '/api/products'
-    }
+    },
+    documentation: 'https://github.com/prakharmandloi/fuelrewards-backend'
   });
 });
 
@@ -59,7 +61,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 FuelRewards API running on port ${PORT}`);
-  console.log(`📍 http://localhost:${PORT}`);
-});
+// Only start server if not in Vercel serverless environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 FuelRewards API running on port ${PORT}`);
+    console.log(`📍 http://localhost:${PORT}`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
